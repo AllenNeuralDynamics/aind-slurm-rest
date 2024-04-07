@@ -9709,7 +9709,7 @@
              }
            },
            "allocation_nodes": {
-             "type": "string",
+             "type": "integer",
              "description": "Nodes allocated to job"
            },
            "array": {
@@ -9862,7 +9862,7 @@
              "description": "Heterogeneous Job details (optional)",
              "properties": {
                "job_id": {
-                 "type": "object",
+                 "type": "integer",
                  "description": "Parent HetJob id"
                },
                "job_offset": {
