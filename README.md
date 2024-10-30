@@ -7,6 +7,7 @@
 ### Usage
 
 ```python
+import os
 from aind_slurm_rest import ApiClient as Client
 from aind_slurm_rest import Configuration as Config
 from aind_slurm_rest.api.slurm_api import SlurmApi
@@ -14,23 +15,21 @@ from aind_slurm_rest.models.v0036_job_submission import V0036JobSubmission
 from aind_slurm_rest.models.v0036_job_properties import V0036JobProperties
 
 host = "http://slurm/api"
-username = "*****"  # Change this
-# Ideally, the password and access_token are set as secrets and read in using a secrets manager
-password = "*****"  # Change this
-access_token = "*****"  # Change this
-config = Config(host=host, password=password, username=username, access_token=access_token)
+username = os.getenv("SLURM_USER_NAME")
+# Ideally, the access_token is set as secrets and read in using a secrets manager
+access_token = os.getenv("SLURM_USER_TOKEN")
+config = Config(host=host, username=username, access_token=access_token)
 slurm = SlurmApi(Client(config))
 slurm.api_client.set_default_header(header_name='X-SLURM-USER-NAME', header_value=username)
-slurm.api_client.set_default_header(header_name='X-SLURM-USER-PASSWORD', header_value=password)
 slurm.api_client.set_default_header(header_name='X-SLURM-USER-TOKEN', header_value=access_token)
 
 command_str = [
             "#!/bin/bash",
             "\necho",
-            "'Hello World?'",
+            "'Hello World'",
             "&&",
             "sleep",
-            "120",
+            "30",
             "&&",
             "echo",
             "'Example json string'",
@@ -41,7 +40,7 @@ command_str = [
             "'",
             "&&",
             "echo",
-            "'Goodbye!'"
+            "'Goodbye'"
         ]
 script = " ".join(command_str)
 
@@ -51,8 +50,8 @@ job_props = V0036JobProperties(
   partition = "aind",  # Change this if needed
   name = "test_job1",
   environment = hpc_env,
-  standard_out = "/path/for/logs/test_job1.out",  # Change this
-  standard_error = "/path/for/logs/test_job1_error.out",  # Change this
+  standard_out = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_job1.out",  # Change this if needed
+  standard_error = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_job1_error.out",  # Change this if needed
   memory_per_cpu = 500,
   tasks = 1,
   minimum_cpus_per_node = 1,
@@ -73,7 +72,6 @@ The code is automatically generated using openapi tools and the specification fr
 ### To get the specification from slurm
 ```bash
 curl -s -H X-SLURM-USER-NAME:$SLURM_USER_NAME \
- -H X-SLURM-USER-PASSWORD:$SLURM_USER_PASSWORD \
  -H X-SLURM-USER-TOKEN:$SLURM_USER_TOKEN \
  -X GET 'http://slurm/api/openapi/v3' > openapi.json
 ```
@@ -92,6 +90,7 @@ docker run --rm \
   -g python \
   -o /local/src
 ```
+Note: If running on Powershell, run the command all in one line.
 
 ## Contributing
 We can update the openapi.json specification if validation errors are raised.
