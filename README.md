@@ -15,22 +15,20 @@ from aind_slurm_rest.models.v0036_job_properties import V0036JobProperties
 
 host = "http://slurm/api"
 username = "*****"  # Change this
-# Ideally, the password and access_token are set as secrets and read in using a secrets manager
-password = "*****"  # Change this
+# Ideally, the access_token is set as secrets and read in using a secrets manager
 access_token = "*****"  # Change this
-config = Config(host=host, password=password, username=username, access_token=access_token)
+config = Config(host=host, username=username, access_token=access_token)
 slurm = SlurmApi(Client(config))
 slurm.api_client.set_default_header(header_name='X-SLURM-USER-NAME', header_value=username)
-slurm.api_client.set_default_header(header_name='X-SLURM-USER-PASSWORD', header_value=password)
 slurm.api_client.set_default_header(header_name='X-SLURM-USER-TOKEN', header_value=access_token)
 
 command_str = [
             "#!/bin/bash",
             "\necho",
-            "'Hello World?'",
+            "'Hello World'",
             "&&",
             "sleep",
-            "120",
+            "30",
             "&&",
             "echo",
             "'Example json string'",
@@ -41,7 +39,7 @@ command_str = [
             "'",
             "&&",
             "echo",
-            "'Goodbye!'"
+            "'Goodbye'"
         ]
 script = " ".join(command_str)
 
@@ -73,7 +71,6 @@ The code is automatically generated using openapi tools and the specification fr
 ### To get the specification from slurm
 ```bash
 curl -s -H X-SLURM-USER-NAME:$SLURM_USER_NAME \
- -H X-SLURM-USER-PASSWORD:$SLURM_USER_PASSWORD \
  -H X-SLURM-USER-TOKEN:$SLURM_USER_TOKEN \
  -X GET 'http://slurm/api/openapi/v3' > openapi.json
 ```
@@ -92,6 +89,7 @@ docker run --rm \
   -g python \
   -o /local/src
 ```
+Note: If running on Powershell, run the command all in one line.
 
 ## Contributing
 We can update the openapi.json specification if validation errors are raised.
