@@ -7,6 +7,7 @@
 ### Usage
 
 ```python
+import os
 from aind_slurm_rest import ApiClient as Client
 from aind_slurm_rest import Configuration as Config
 from aind_slurm_rest.api.slurm_api import SlurmApi
@@ -14,9 +15,9 @@ from aind_slurm_rest.models.v0036_job_submission import V0036JobSubmission
 from aind_slurm_rest.models.v0036_job_properties import V0036JobProperties
 
 host = "http://slurm/api"
-username = "*****"  # Change this
+username = os.getenv("SLURM_USER_NAME")
 # Ideally, the access_token is set as secrets and read in using a secrets manager
-access_token = "*****"  # Change this
+access_token = os.getenv("SLURM_USER_TOKEN")
 config = Config(host=host, username=username, access_token=access_token)
 slurm = SlurmApi(Client(config))
 slurm.api_client.set_default_header(header_name='X-SLURM-USER-NAME', header_value=username)
@@ -49,8 +50,8 @@ job_props = V0036JobProperties(
   partition = "aind",  # Change this if needed
   name = "test_job1",
   environment = hpc_env,
-  standard_out = "/path/for/logs/test_job1.out",  # Change this
-  standard_error = "/path/for/logs/test_job1_error.out",  # Change this
+  standard_out = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_job1.out",  # Change this if needed
+  standard_error = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_job1_error.out",  # Change this if needed
   memory_per_cpu = 500,
   tasks = 1,
   minimum_cpus_per_node = 1,
