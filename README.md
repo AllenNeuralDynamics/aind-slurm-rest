@@ -10,6 +10,7 @@
 from aind_slurm_rest import ApiClient as Client
 from aind_slurm_rest import Configuration as Config
 from aind_slurm_rest.api.slurm_api import SlurmApi
+from aind_slurm_rest.api.slurmdb_api import SlurmdbApi
 from aind_slurm_rest.models.v0040_job_submit_req import V0040JobSubmitReq
 from aind_slurm_rest.models.v0040_job_desc_msg import V0040JobDescMsg
 from aind_slurm_rest.models.v0040_uint64_no_val import V0040Uint64NoVal
@@ -42,11 +43,11 @@ script = " ".join(command_str)
 hpc_env = ["PATH=/bin:/usr/bin/:/usr/local/bin/", "LD_LIBRARY_PATH=/lib/:/lib64/:/usr/local/lib"]
 
 job_props = V0040JobDescMsg(
-  name = "test_slurm_2_job1",
+  name = "test_slurm_2_job4",
   partition = "aind",
   environment = hpc_env,
-  standard_output = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_slurm2_job1.out",
-  standard_error = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_slurm2_job1_error.out",
+  standard_output = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_slurm2_job4.out",
+  standard_error = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_slurm2_job4_error.out",
   current_working_directory=".",
   time_limit = V0040Uint32NoVal(set=True, number=1),
   memory_per_cpu = V0040Uint64NoVal(set=True, number=50),
@@ -60,6 +61,11 @@ submit_response = slurm.slurm_v0040_post_job_submit(v0040_job_submit_req=job_sub
 job_id = str(submit_response.job_id)
 job_response = slurm.slurm_v0040_get_job(job_id=job_id)
 print(job_response)
+# If the job has been cleared from the short-term cache, info can be pulled
+# from the db
+slurmdb = SlurmdbApi(Client(config))
+db_job_response = slurmdb.slurmdb_v0040_get_job(job_id=job_id)
+
 ```
 
 ## Installation
