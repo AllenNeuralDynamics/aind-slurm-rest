@@ -1,5 +1,5 @@
 {
    "packageName": "aind_slurm_rest",
+   "generateSourceCodeOnly": true,
    "packageVersion": "0.2.2"
-   "generateSourceCodeOnly": true
 }
