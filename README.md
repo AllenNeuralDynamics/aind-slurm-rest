@@ -45,7 +45,7 @@ script = " ".join(command_str)
 hpc_env = ["PATH=/bin:/usr/bin/:/usr/local/bin/", "LD_LIBRARY_PATH=/lib/:/lib64/:/usr/local/lib"]
 
 job_props = V0040JobDescMsg(
-  name = "test_slurm_2_job4",
+  name = "test_job",
   partition = "aind",
   environment = hpc_env,
   standard_output = "/allen/aind/scratch/svc_aind_airflow/dev/logs/%x_%j.out",
