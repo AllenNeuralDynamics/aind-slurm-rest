@@ -6,6 +6,8 @@
 
 ### Usage
 
+For use with Slurm v0.0.40 endpoints.
+
 ```python
 from aind_slurm_rest import ApiClient as Client
 from aind_slurm_rest import Configuration as Config
@@ -73,13 +75,10 @@ The code is automatically generated using openapi tools and the specification fr
 
 ### To get the specification from slurm
 ```bash
-curl -s -H X-SLURM-USER-NAME:$SLURM_USER_NAME \
- -H X-SLURM-USER-TOKEN:$SLURM_USER_TOKEN \
+curl -s -H X-SLURM-USER-NAME:$SLURM_USER \
+ -H X-SLURM-USER-TOKEN:$SLURM_TOKEN \
  -X GET 'http://slurm/api2/openapi/v3' > openapi.json
 ```
-
-### Update schema
-The original specification has some validation issues, so the output is modified. The changes are tracked in `schema_changes.json`.
 
 ### To create the python code, openapi tools is used. `generateSourceCodeOnly` in `configs.json` can be set to `False` to generate tests and additional files.
 ```bash
