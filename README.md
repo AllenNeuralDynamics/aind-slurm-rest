@@ -6,22 +6,28 @@
 
 ### Usage
 
+For use with Slurm v0.0.40 endpoints.
+
 ```python
-import os
 from aind_slurm_rest import ApiClient as Client
 from aind_slurm_rest import Configuration as Config
 from aind_slurm_rest.api.slurm_api import SlurmApi
-from aind_slurm_rest.models.v0036_job_submission import V0036JobSubmission
-from aind_slurm_rest.models.v0036_job_properties import V0036JobProperties
+from aind_slurm_rest.api.slurmdb_api import SlurmdbApi
+from aind_slurm_rest.models.v0040_job_submit_req import V0040JobSubmitReq
+from aind_slurm_rest.models.v0040_job_desc_msg import V0040JobDescMsg
+from aind_slurm_rest.models.v0040_uint64_no_val import V0040Uint64NoVal
+from aind_slurm_rest.models.v0040_uint32_no_val import V0040Uint32NoVal
+import os
 
-host = "http://slurm/api"
-username = os.getenv("SLURM_USER_NAME")
-# Ideally, the access_token is set as secrets and read in using a secrets manager
-access_token = os.getenv("SLURM_USER_TOKEN")
+host = "http://slurm2/api"
+username = os.getenv("SLURM_USER")
+access_token = os.getenv("SLURM_TOKEN")
 config = Config(host=host, username=username, access_token=access_token)
 slurm = SlurmApi(Client(config))
-slurm.api_client.set_default_header(header_name='X-SLURM-USER-NAME', header_value=username)
-slurm.api_client.set_default_header(header_name='X-SLURM-USER-TOKEN', header_value=access_token)
+
+# ping test
+ping_response = slurm.slurm_v0040_get_ping()
+print(ping_response)
 
 command_str = [
             "#!/bin/bash",
@@ -29,71 +35,59 @@ command_str = [
             "'Hello World'",
             "&&",
             "sleep",
-            "30",
-            "&&",
-            "echo",
-            "'Example json string'",
-            "&&",
-            "echo",
-            "'",
-            '{"input_source":"/path/to/directory","output_directory":"/path/to/another_directory"}',
-            "'",
+            "15",
             "&&",
             "echo",
             "'Goodbye'"
         ]
 script = " ".join(command_str)
 
-hpc_env = {"PATH": "/bin:/usr/bin/:/usr/local/bin/", "LD_LIBRARY_PATH": "/lib/:/lib64/:/usr/local/lib",}
+hpc_env = ["PATH=/bin:/usr/bin/:/usr/local/bin/", "LD_LIBRARY_PATH=/lib/:/lib64/:/usr/local/lib"]
 
-job_props = V0036JobProperties(
-  partition = "aind",  # Change this if needed
-  name = "test_job1",
+job_props = V0040JobDescMsg(
+  name = "test_job",
+  partition = "aind",
   environment = hpc_env,
-  standard_out = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_job1.out",  # Change this if needed
-  standard_error = "/allen/aind/scratch/svc_aind_airflow/dev/logs/test_job1_error.out",  # Change this if needed
-  memory_per_cpu = 500,
+  standard_output = "/allen/aind/scratch/svc_aind_airflow/dev/logs/%x_%j.out",
+  standard_error = "/allen/aind/scratch/svc_aind_airflow/dev/logs/%x_%j_error.out",
+  current_working_directory=".",
+  time_limit = V0040Uint32NoVal(set=True, number=1),
+  memory_per_cpu = V0040Uint64NoVal(set=True, number=50),
   tasks = 1,
-  minimum_cpus_per_node = 1,
-  nodes = [1, 1],
-  time_limit = 5  # In minutes
+  minimum_cpus = 1,
+  maximum_nodes = 1,
 )
 
-job_submission = V0036JobSubmission(script=script, job=job_props)
-submit_response = slurm.slurmctld_submit_job_0(v0036_job_submission=job_submission)
-job_id = submit_response.job_id
-job_response = slurm.slurmctld_get_job_0(job_id=submit_response.job_id)
-print(job_response.jobs[0].job_state)
+job_submission = V0040JobSubmitReq(script=script, job=job_props)
+submit_response = slurm.slurm_v0040_post_job_submit(v0040_job_submit_req=job_submission)
+job_id = str(submit_response.job_id)
+job_response = slurm.slurm_v0040_get_job(job_id=job_id)
+print(job_response)
+# If the job has been cleared from the short-term cache, info can be pulled
+# from the db
+slurmdb = SlurmdbApi(Client(config))
+db_job_response = slurmdb.slurmdb_v0040_get_job(job_id=job_id)
+
 ```
 
 ## Installation
 The code is automatically generated using openapi tools and the specification from slurm.
 
-### To get the specification from slurm
-```bash
-curl -s -H X-SLURM-USER-NAME:$SLURM_USER_NAME \
- -H X-SLURM-USER-TOKEN:$SLURM_USER_TOKEN \
- -X GET 'http://slurm/api/openapi/v3' > openapi.json
-```
-
-### Update schema
-The original specification has some validation issues, so the output is modified. The changes are tracked in `schema_changes.json`.
+### Please reach out to Central IT for the `openapi.json` file.
 
 ### To create the python code, openapi tools is used. `generateSourceCodeOnly` in `configs.json` can be set to `False` to generate tests and additional files.
 ```bash
 docker run --rm \
   -u "$(id -u):$(id -g)" \
-  -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+  -v ${PWD}:/local openapitools/openapi-generator-cli:latest generate \
   --skip-validate-spec \
   --config /local/configs.json \
   -i /local/openapi.json \
   -g python \
   -o /local/src
 ```
-Note: If running on Powershell, run the command all in one line.
 
 ## Contributing
-We can update the openapi.json specification if validation errors are raised.
 
 ### Pull requests
 
