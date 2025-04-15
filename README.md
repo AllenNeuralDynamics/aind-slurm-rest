@@ -73,12 +73,7 @@ db_job_response = slurmdb.slurmdb_v0040_get_job(job_id=job_id)
 ## Installation
 The code is automatically generated using openapi tools and the specification from slurm.
 
-### To get the specification from slurm
-```bash
-curl -s -H X-SLURM-USER-NAME:$SLURM_USER \
- -H X-SLURM-USER-TOKEN:$SLURM_TOKEN \
- -X GET 'http://slurm/api2/openapi/v3' > openapi.json
-```
+### Please reach out to Central IT for the `openapi.json` file.
 
 ### To create the python code, openapi tools is used. `generateSourceCodeOnly` in `configs.json` can be set to `False` to generate tests and additional files.
 ```bash
@@ -93,7 +88,6 @@ docker run --rm \
 ```
 
 ## Contributing
-We can update the openapi.json specification if validation errors are raised.
 
 ### Pull requests
 
